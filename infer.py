@@ -9,10 +9,11 @@ import shared
 
 dim = 3072
 index = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
+index_bak = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
 ids = []
 
 def decode_task(model, transform):
-    global index, ids
+    global index, index_bak, ids
 
     next_id = 0
     
@@ -40,8 +41,13 @@ def decode_task(model, transform):
 
         index.add_with_ids(emb_image, next_id)
         print(f"Added image with ID {next_id} to index. Current index size: {index.ntotal}")
-        if len(ids) > 100:
-            index.remove_ids(ids.pop(0))
+        if len(ids) > 1000:
+            index_bak.add_with_ids(emb_image, next_id)
+        if len(ids) > 2000:
+            index = index_bak
+            index_bak = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
+            ids = ids[-1000:]
+
         next_id = (next_id + 1) % 1000
 
         shared.period = max(time.time() - start_time + 1, 5)
