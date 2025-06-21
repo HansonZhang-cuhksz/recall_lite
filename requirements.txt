@@ -1,0 +1,6 @@
+transformers
+faiss-cpu
+pillow
+torch
+pyautogui
+streamlit
