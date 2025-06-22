@@ -3,9 +3,10 @@ import time
 from PIL import Image
 import torch
 from torch.nn import functional as F
+import os
 
+from capture import take_screenshot
 from utils import device, max_file
-import shared
 
 dim = 3072
 index = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
@@ -16,19 +17,28 @@ def decode_task(model, transform):
     global index, index_bak, ids, max_file
 
     next_id = 0
+    paths = []
     
     img_prompt = '<|user|>\n<|image_1|>\nSummary above image in one word: <|end|>\n<|assistant|>\n'
 
     while True:
-        start_time = time.time()
-
-        if shared.pth is None:
+        try:
+            pth = take_screenshot()
+        except:
+            print("Error taking screenshot")
             time.sleep(0.5)
             continue
+        paths.append(pth)
 
-        input_image = [Image.open(shared.pth)]
-        ids.append((next_id, shared.pth))
-        shared.pth = None
+        if len(paths) > max_file:
+            oldest_file = paths.pop(0)
+            try:
+                os.remove(oldest_file)
+            except Exception as e:
+                print(f"Error removing file {oldest_file}: {e}")
+
+        input_image = [Image.open(pth)]
+        ids.append((next_id, pth))
 
         inputs_image = transform(text=img_prompt,
                     images=input_image, 
@@ -49,8 +59,6 @@ def decode_task(model, transform):
             ids = ids[-max_file:]
 
         next_id = (next_id + 1) % 1000
-
-        shared.period = max(time.time() - start_time + 1, 5)
 
 def query(model, transform, text, k=3):
     global index, ids

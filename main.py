@@ -1,6 +1,5 @@
 import streamlit as st
 
-from capture import capture_task
 from infer import decode_task, query
 from utils import device, memory_dir
 
@@ -33,11 +32,8 @@ def init():
     transform.tokenizer.padding_side = "left"
     transform.tokenizer.padding = True
 
-    capture_thread = threading.Thread(target=capture_task)
-    capture_thread.daemon = True
     decode_thread = threading.Thread(target=decode_task, args=(model, transform))
     decode_thread.daemon = True
-    capture_thread.start()
     decode_thread.start()
 
     return model, transform
