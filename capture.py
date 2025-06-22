@@ -23,7 +23,12 @@ def capture_task():
     while True:
         start_time = time.time()
 
-        shared.pth = take_screenshot()
+        try:
+            shared.pth = take_screenshot()
+        except:
+            print("Error taking screenshot")
+            time.sleep(0.5)
+            continue
         paths.append(shared.pth)
 
         if len(paths) > max_file:
