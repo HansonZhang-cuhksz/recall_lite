@@ -4,7 +4,7 @@ from PIL import Image
 import torch
 from torch.nn import functional as F
 
-from utils import device
+from utils import device, max_file
 import shared
 
 dim = 3072
@@ -13,7 +13,7 @@ index_bak = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
 ids = []
 
 def decode_task(model, transform):
-    global index, index_bak, ids
+    global index, index_bak, ids, max_file
 
     next_id = 0
     
@@ -41,12 +41,12 @@ def decode_task(model, transform):
 
         index.add_with_ids(emb_image, next_id)
         print(f"Added image with ID {next_id} to index. Current index size: {index.ntotal}")
-        if len(ids) > 1000:
+        if len(ids) > max_file:
             index_bak.add_with_ids(emb_image, next_id)
-        if len(ids) > 2000:
+        if len(ids) > 2 * max_file:
             index = index_bak
             index_bak = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
-            ids = ids[-1000:]
+            ids = ids[-max_file:]
 
         next_id = (next_id + 1) % 1000
 

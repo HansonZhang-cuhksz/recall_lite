@@ -3,7 +3,7 @@ import datetime
 import time
 import os
 
-from utils import memory_dir
+from utils import memory_dir, max_file
 import shared
 
 def take_screenshot(save_path=None):
@@ -16,6 +16,8 @@ def take_screenshot(save_path=None):
     return save_path
 
 def capture_task():
+    global max_file
+
     paths = []
     
     while True:
@@ -24,7 +26,7 @@ def capture_task():
         shared.pth = take_screenshot()
         paths.append(shared.pth)
 
-        if len(paths) > 100:
+        if len(paths) > max_file:
             oldest_file = paths.pop(0)
             try:
                 os.remove(oldest_file)
