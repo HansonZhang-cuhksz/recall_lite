@@ -1,6 +1,7 @@
 import streamlit as st
+import time
 
-from infer import decode_task, query
+from infer import decode_task, query, paths
 from utils import device, memory_dir
 
 st.title("Recall Lite")
@@ -36,9 +37,18 @@ def init():
     decode_thread.daemon = True
     decode_thread.start()
 
+    st.session_state.default_timestamp = 0
+
+    time.sleep(5)
+
     return model, transform
 
 model, transform = init()
+
+if len(paths) > 0:
+    timestamp = st.slider("Timestamp", 0, len(paths)-1, st.session_state.default_timestamp, 1)
+    st.image(paths[timestamp], use_container_width=True)
+    st.session_state.default_timestamp = timestamp
 
 # Place the chat bar at the bottom
 with st.form("Ask Recall", clear_on_submit=True):

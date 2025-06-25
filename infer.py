@@ -12,12 +12,12 @@ dim = 3072
 index = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
 index_bak = faiss.IndexIDMap(faiss.IndexFlatL2(dim))
 ids = []
+paths = []
 
 def decode_task(model, transform):
-    global index, index_bak, ids, max_file
+    global index, index_bak, ids, max_file, paths
 
     next_id = 0
-    paths = []
     
     img_prompt = '<|user|>\n<|image_1|>\nSummary above image in one word: <|end|>\n<|assistant|>\n'
 
